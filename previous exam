@@ -1,0 +1,34 @@
+---
+- name: Create Namespace and Immutable Secret
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Create Namespace
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: web
+        state: present
+
+    - name: Create Immutable Secret
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: deploy-secret
+          type: Opaque
+          data:
+            username: YWRtaW4=  # Base64-encoded "admin"
+            password: YWRtaW4=  # Base64-encoded "admin"
+        state: present
+
+---
+- name: Create StatefulSet
+  hosts: localhost  # You can specify the target host or inventory group here
+  tasks:
+    - name: Apply StatefulSet YAML
+      command: kubectl apply -f statefulset.yaml
+      become: yes
