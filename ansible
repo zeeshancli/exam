@@ -1,0 +1,24 @@
+kubernetes deploy yaml
+[ansadmin@Ansible_Server docker]$ cat kube_deploy.yml
+---
+- hosts: kubernetes
+ #become: true
+ user: root
+ tasks:
+ - name: deploy regapp on kubernetes
+ command: kubectl apply -f regapp-deploy.yml
+ - name : create service for regapp
+ command: kubectl apply -f regapp-service.yml
+[ansadmin@Ansible_Server docker]$ cat kube_service.yml
+
+- hosts: ansible
+ tasks:
+ - name : create docker image
+ command : docker build -t regapp:latest .
+ args :
+ chdir : /opt/docker
+ - name : create tag to push image on docker hub
+ command : docker tag regapp:latest saifshah/regapp:latest
+ - name : push docker image on docker hub
+ command : docker push saifshah/regapp:latest
+
